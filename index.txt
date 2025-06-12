@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weather App</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f1f5f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .dark-mode {
+      background: #1e293b;
+      color: #f9fafb;
+    }
+
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 320px;
+    }
+
+    .dark-mode .container {
+      background: #334155;
+    }
+
+    input, select {
+      padding: 10px;
+      width: 100%;
+      margin-top: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      padding: 10px;
+      margin-top: 10px;
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .toggle-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      padding: 8px 12px;
+      background-color: #111827;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .dark-mode .toggle-btn {
+      background: #f1f5f9;
+      color: #111827;
+    }
+
+    .weather {
+      margin-top: 20px;
+    }
+
+    img {
+      width: 80px;
+      height: 80px;
+    }
+  </style>
+</head>
+<body>
+
+  <button class="toggle-btn" onclick="toggleMode()">🌗 Toggle Mode</button>
+
+  <div class="container">
+    <h2>🌤 Weather App</h2>
+
+    <select id="citySelect" onchange="setCityFromSelect()">
+      <option value="">-- Select a City --</option>
+      <option value="Delhi">Delhi</option>
+      <option value="Mumbai">Mumbai</option>
+      <option value="Hyderabad">Hyderabad</option>
+      <option value="Bangalore">Bangalore</option>
+      <option value="Chennai">Chennai</option>
+      <option value="New York">New York</option>
+      <option value="London">London</option>
+      <option value="Paris">Paris</option>
+    </select>
+
+    <input type="text" id="cityInput" placeholder="Or type another city..." />
+    <button onclick="getWeather()">Get Weather</button>
+
+    <div class="weather" id="weatherBox"></div>
+  </div>
+
+  <script>
+    const apiKey = "aad401a464f134ec96fb33ac0826cc5f"; // 🔁 Replace with your real key
+
+    function toggleMode() {
+      document.body.classList.toggle("dark-mode");
+    }
+
+    function setCityFromSelect() {
+      const selected = document.getElementById("citySelect").value;
+      document.getElementById("cityInput").value = selected;
+    }
+
+    function getWeather() {
+      const city = document.getElementById("cityInput").value.trim();
+      const weatherBox = document.getElementById("weatherBox");
+
+      if (city === "") {
+        alert("Please enter or select a city.");
+        return;
+      }
+
+      const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+
+      fetch(url)
+        .then(res => {
+          if (!res.ok) throw new Error("City not found");
+          return res.json();
+        })
+        .then(data => {
+          const { name } = data;
+          const { country } = data.sys;
+          const { temp, humidity } = data.main;
+          const { speed } = data.wind;
+          const { main, icon } = data.weather[0];
+
+          weatherBox.innerHTML = `
+            <h3>${name}, ${country}</h3>
+            <img src="https://openweathermap.org/img/wn/${icon}@2x.png" alt="icon">
+            <p>🌡 Temperature: ${temp}°C</p>
+            <p>☁ Condition: ${main}</p>
+            <p>💧 Humidity: ${humidity}%</p>
+            <p>💨 Wind Speed: ${speed} m/s</p>
+          `;
+        })
+        .catch(err => {
+          weatherBox.innerHTML = `<p style="color:red;">❌ ${err.message}</p>`;
+        });
+    }
+  </script>
+</body>
+</html>
